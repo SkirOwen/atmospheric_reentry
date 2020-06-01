@@ -3,45 +3,51 @@ close all
 clc
 
 % Global constants
-
 global cw ca A K mpunkt_quer F_quer tc alpha lrampe r0
 
-% Basic Design Data of Rocket
+% We need to change the following values, it was a bit obvious looking at
+% it though :')
 
-m1 = 2.
-m0 = 80
-cw = 0.4
-ca = 0.
-alpha = 0.
-lrampe = 10.
-D = 0.2
-A = D^2 * pi / 4
+% Basic Design Data of Rocket
+m1 = 2.0
+m0 = 80         % initial mass in kg
+cw = 0.4        % lift coeff -> to move to the function if alpha variable
+ca = 0.0        % drag coeff -> idem
+alpha = 0.0     % Angle alpha
+lrampe = 10.0   % No idea for now -> some kind of altitude in metre 
+D = 0.2         % Diametre of the capsule
+A = D^2 * pi / 4    % Area (section for the lift and drag mostly)
+r = 425600      % added initial altitude in m (here ISS) -> bug if r <=10 m
 
 % Genereric Constants
-
-r0 = 6371000
-rho = 1.225
-K = 3.9658e14
-g0 = 9.81
+r0 = 6371000    % Radius of the Earth (orbiting body)
+rho = 1.225     % rho at sea level, though WolframAlpha says it's 1.226
+K = 3.9658e14   % Seems to be mu from 'Guided_work_2.pdf' where to find?
+% maybe the geocentric gravitational constant?? but I only find the value
+% of 3.9860044e14 m^3/s^2 on the Internet
+g0 = 9.81       % maybe we need to change this but i dont reckon we need
+                % since we stay pretty close to Earth
 
 % Motor Data
-
-m8 = 26.
-Is = 1700.
-tc = 15.
-mpunkt_quer = m8 / tc
+m8 = 26.0
+Is = 1700.0
+tc = 15.0       % burn time of the engine in second
+mpunkt_quer = m8 / tc   % apparently mass total or the one for the derivative
 Itot = m8 * Is
 F_quer = Itot / tc
 
 % Calculated Rocket Data
-
 mc = m0 - m8
 R = m0 / mc
+H = r + r0
 
 % Numerical solution
+% gamma initial is 80 degre, do we need to change it?
 gamma = 80 * pi / 180
 
-[T,Y] = ode15s(@Rocket_2DOF, [0 101], [0 r0 m0 gamma 0]);
+                            % t0 t_end  v H m0 gamma phi
+[T,Y] = ode15s(@Rocket_2DOF, [0 1000], [0 H m0 gamma 0]);
+% Y vertical vector as: [velocity, H, m, gamma, phi]
 
 % Calculate accelerations as derivatives from velocities
     deltav = diff(Y(:, 1));
