@@ -1,6 +1,6 @@
 function cx = cx_inter(alpha, mach)
 
-alpha_x =[-30 -25 -20 -15 -10 -5 0];
+alpha_x =[-30; -25; -20; -15; -10; -5; 0];
 mach_y =[0.6 0.95 1.10 1.78 2.52 5.96];
 
 cx_values = [
@@ -12,10 +12,17 @@ cx_values = [
     1.180, 1.280, 1.380, 1.440, 1.515, 1.530, 1.560
     ];
 % l_ratio = interp2(alpha_x, mach_y, LD_values, alpha, mach, 'spline');
-
+% 
 % [x, y] = meshgrid(alpha_x, mach_y);
-
+% 
 % p = polyfitn([x(:), y(:)], cx_values(:), 5);
 % cx = polyvaln(p, [alpha, mach]);
 cx = griddata(alpha_x, mach_y, cx_values, alpha, mach, 'v4');
+% Cx = polyfitweighted2(alpha_x, mach_y, cx_values ,3,[1 1 1 1 1 1; 
+%                                           1 1 1 1 1 1;
+%                                           1 1 1 1 1 1;
+%                                           1 1 1 1 1 1;
+%                                           1 1 1 1 1 1;
+%                                           1 1 1 1 1 1;]);
+% cx = polyval2(Cx, alpha, mach);
 end

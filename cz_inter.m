@@ -1,7 +1,7 @@
 function cz = cz_inter(alpha, mach)
 
 
-alpha_x =[-30 -25 -20 -15 -10 -5 0];
+alpha_x =[-30; -25; -20; -15; -10; -5; 0];
 mach_y =[0.6 0.95 1.10 1.78 2.52 5.96];
 
 cz_values = [
@@ -18,5 +18,12 @@ cz_values = [
 % p = polyfitn([x(:), y(:)], cz_values(:), 5);
 % cz = polyvaln(p, [alpha, mach]);
 cz = griddata(alpha_x, mach_y, cz_values, alpha, mach, 'v4');
+% Cz = polyfitweighted2(alpha_x, mach_y, cx_values ,3,[1 1 1 1 1 1; 
+%                                           1 1 1 1 1 1;
+%                                           1 1 1 1 1 1;
+%                                           1 1 1 1 1 1;
+%                                           1 1 1 1 1 1;
+%                                           1 1 1 1 1 1;]);
+% cz = polyval2(Cz, alpha, mach);
 end
 

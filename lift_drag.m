@@ -1,6 +1,6 @@
 function ld_ratio = lift_drag(alpha, mach)
 
-alpha_x =[-30 -25 -20 -15 -10 -5 0];
+alpha_x =[-30; -25; -20; -15; -10; -5; 0];
 mach_y =[0.6 0.95 1.10 1.78 2.52 5.96];
 
 LD_values = [
@@ -17,6 +17,13 @@ LD_values = [
 % p = polyfitn([x(:), y(:)], LD_values(:), 5);
 % ld_ratio = polyvaln(p, [alpha, mach]);
 ld_ratio = griddata(alpha_x, mach_y, LD_values, alpha, mach, 'v4');
+% ld = polyfitweighted2(alpha_x, mach_y, LD_values ,3,[1 1 1 1 1 1; 
+%                                           1 1 1 1 1 1;
+%                                           1 1 1 1 1 1;
+%                                           1 1 1 1 1 1;
+%                                           1 1 1 1 1 1;
+%                                           1 1 1 1 1 1;]);
+% ld_ratio = polyval2(ld, alpha, mach);
 end
 
 
