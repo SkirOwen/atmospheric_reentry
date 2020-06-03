@@ -33,10 +33,7 @@ A = D^2 * pi / 4;   % Area (section for the lift and drag mostly)
 % deltav = SI * log(m0 / m_f);
 % md = Thrust / SI;
 % t_burn = m_fuel / md;    % [s]
-% r_n = D/2;          % radis of the nose
-
-a_parachute1 = 11.0;
-a_parachute2 = 51.0;
+r_n = D/2;          % radis of the nose
 
 % Mission Parameters
 g_max = 5 * g;
@@ -50,16 +47,26 @@ r_start = r_atm;
 % Orbital 
 e = (r_apoapsis - r_periapsis) / (r_apoapsis + r_periapsis);
 a = (r_apoapsis + r_periapsis) / 2;
-theta = acos((a * (1 - e^2) - r_start) / (r_start * e));
+if r_start == r_apoapsis
+    theta = pi;
+else
+    theta = acos((a * (1 - e^2) - r_start) / (r_start * e));
+end
 gamma0 = atan((e * sin(theta)) / (1 + e * cos(theta)));     % something around 1.35deg
 
 v0 = sqrt(((2*mu_E)/r_start)-(mu_E/a));
 
 
-[T,Y] = ode15s(@Rocket_2DOF, [0:0.01:2000], [v0 gamma0 r_start 0 m0]);
+[T,Y] = ode15s(@Rocket_2DOF, [0:0.01:3000], [v0 gamma0 r_start 0 m0]);
 
-% qd = heat_flux(Y(:,1), Y(:,3));
+qd = heat_flux(Y(:,1), Y(:,3));
 
+flags = [0 0 0 0 0 0 0 0 -1 0 0 0 0 0 1 1 1 1 1 1 1 1 1];
+[temp, rho] = atmosnrlmsise00(Y(:,3)-r_E, 34.06, 45.26, 2017, 348, 43200, flags, 'Oxygen', 'None');
+a = sqrt(1.33.*287.*temp(2));
+mach = Y(:,1) ./ a;
+cd = abs(sqrt(cx_inter(alpha, mach).^2 + cz_inter(alpha, mach).^2));
+cl = abs(lift_drag(alpha, mach) .* cd);
 % Calculate accelerations as derivatives from velocities
     deltav = diff(Y(:, 1));
     deltat = diff(T);
@@ -76,10 +83,15 @@ v0 = sqrt(((2*mu_E)/r_start)-(mu_E/a));
 %         VecQ(lt + 1:la) = [];
     end
 % plot results   
-figure(1)
+subplot(2,1,1)
 plot (T, acc/g, 'b-')
 ylabel ('Acceleration [g]')
 xlabel ('Time [s]')
+subplot(2,1,2)
+plot (T, Y(:, 3)-r_E)
+ylabel ('Altitude [m]')
+xlabel ('Time [s]')
+
 figure(2)
 plot (T, Y(:, 1), 'r-')
 ylabel ('Velocity [m/s]')
@@ -88,10 +100,7 @@ figure(3)
 plot (T, Y(:, 2) * 180 / pi, 'b-')
 ylabel ('gamma [\gamma]')
 xlabel ('Time [s]')
-figure(4)
-plot (T, Y(:, 3)-r_E)
-ylabel ('Altitude [m]')
-xlabel ('Time [s]')
+
 figure(5)
 plot (T, Y(:, 4))
 ylabel ('phi [\phi]')
@@ -100,10 +109,22 @@ figure(6)
 plot (T, Y(:, 5))
 ylabel ('mass [kg]')
 xlabel ('Time [s]')
-% subplot(4, 2, 7)
-% plot (T, qd(:))
-% ylabel ('Heat Flux')
-% xlabel ('Time [s]')
+figure(7)
+plot(T, mach)
+ylabel ("Mach")
+xlabel("Time [s]")
+figure(8)
+plot(T, cd)
+ylabel ("cd")
+xlabel("Time [s]")
+figure(9)
+plot(T, cl)
+ylabel ("cl")
+xlabel("Time [s]")
+figure(10)
+plot (T, qd(:))
+ylabel ('Heat Flux')
+xlabel ('Time [s]')
 % subplot(4,2,8)
 % plot (T, VecQ)
 % ylabel ('Cumulated heat flux Heat Flux')
